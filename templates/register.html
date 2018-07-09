@@ -1,30 +1,42 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>register</title>
-</head>
-<body>
-<form action="register.html" method="post">
-    <p>
-        <label>用户名：</label>
-        <input name="username" type="text" />
-    </p>
-    <p>
-        <label>性别：</label>
-        <input name="sex" type="text" />
-    </p>
-    <p>
-        <label>密码：</label>
-        <input name="password" type="password" />
-    </p>
-    <p>
-        <label>年龄：</label>
-        <input name="age" type="text" />
-    </p>
-    <p>
-        <input type="submit" value="提交">
-    </p>
-</form>
-</body>
-</html>
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% block title %}登录{% endblock %}
+{% block css %}<link href="{% static 'css/register.css' %}" rel="stylesheet"/>{% endblock %}
+
+
+{% block content %}
+    <div class="container">
+        <div class="col-md-4 col-md-offset-4">
+          <form class='form-login' action="/registerhtml/" method="post">
+              <h2 class="text-center">欢迎注册</h2>
+              <div class="form-group">
+                <label for="id_username">用户名：</label>
+                <input type="text" name='username' class="form-control" id="id_username" placeholder="必填" autofocus required>
+              </div>
+              <div class="form-group">
+                <label for="id_password">密码：</label>
+                <input type="password" name='password' class="form-control" id="id_password" placeholder="必填" required>
+                  </div>
+              <div class="form-group">
+                <label for="id_age">年龄：</label>
+                <input type="number" name='age' id="id_age" class="form-control" placeholder="选填">
+              </div>
+              <div class="form-group">
+                <label>性别：</label>
+                <select name="sex">
+                    <option value="no">请选择</option>
+                    <option value="男">男</option>
+                    <option value="女">女</option>
+                </select>
+              </div>
+              {% if error == 1 %}
+              <script type="text/javascript">
+              alert("用户名已存在！")
+              </script>
+          {% endif %}
+              <button type="reset" class="btn btn-default pull-left">重置</button>
+              <button type="submit" class="btn btn-primary pull-right">提交</button>
+          </form>
+        </div>
+    </div> <!-- /container -->
+{% endblock %}

@@ -1,15 +1,15 @@
 {% extends 'afterlogin.html' %}
 {% load staticfiles %}
 {% block title %}登录{% endblock %}
-{% block css %}<link href="{% static 'css/delete.css' %}" rel="stylesheet"/>{% endblock %}
+{% block css %}<link href="{% static 'css/updataBills.css' %}" rel="stylesheet"/>{% endblock %}
+
 
 
 {% block content %}
     <div class="container">
         <div class="col-md-4 col-md-offset-4">
-
-          <form class='form-login' action="bill_list/delete_billhtml-{{ nid }}" method="post">
-              <h3 class="text-center">删除账单</h3>
+          <form class='form-login' action="bill_list/update_billhtml-{{ nid }}" method="post">
+              <h3 class="text-center">修改账单</h3>
               <div class="form-group">
                 <label for="id_date">日期：</label>
                 <input type="date" name='time' class="form-control" id="id_date" placeholder="必填" autofocus required>
@@ -22,14 +22,31 @@
                 <label for="id_type">类型：</label>
                 <input type="number" name='type' class="form-control" id="id_type" placeholder="必填" autofocus required>
               </div>
+          <div class="form-group">
+                <label for="id_newmoney">新金额：</label>
+                <input type="number" name='new_money' class="form-control" id="id_newmoney" placeholder="选填">
+              </div>
+          <div class="form-group">
+                <label for="id_newtype">新类型：</label>
+                <input type="number" name='new_type' class="form-control" id="id_newtype" placeholder="选填">
+              </div>
+          <div class="form-group">
+                <label for="id_newremark">新备注：</label>
+                <input type="text" name='new_remark' class="form-control" id="id_newremark" placeholder="选填">
+              </div>
               {% if error == 1 %}
                   <script type="text/javascript">
-              alert("账单不存在！")
+              alert("新金额、新类型和新备注至少要填一个！")
               </script>
               {% endif %}
           {% if error == 0 %}
               <script type="text/javascript">
-              alert("删除成功！")
+              alert("修改成功！")
+              </script>
+          {% endif %}
+          {% if error == 2 %}
+              <script type="text/javascript">
+              alert("金额必须和类型匹配！")
               </script>
           {% endif %}
                 <button type="reset" class="btn btn-default pull-left">重置</button>

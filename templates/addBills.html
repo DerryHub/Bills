@@ -1,36 +1,49 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>add bills</title>
-</head>
-<body>
-<form action="addBills.html" method="post">
-    <p>
-        <label>用户名：</label>
-        <input name="username" type="text" />
-    </p>
-    <p>
-        <label>时间：</label>
-        <input name="time" type="text" />
-    </p>
-    <p>
-        <label>金额：</label>
-        <input name="money" type="text" />
-    </p>
-    <p>
-        <label>类型：</label>
-        <input name="type" type="text" />
-    </p>
-    <p>
-        <label>备注：</label>
-        <input name="remark" type="text" />
-    </p>
-    <p>
-        <label>心情：</label>
-        <input name="remark" type="text" />
-        <input type="submit" value="提交">
-    </p>
-</form>
-</body>
-</html>
+{% extends 'afterlogin.html' %}
+{% load staticfiles %}
+{% block title %}登录{% endblock %}
+{% block css %}<link href="{% static 'css/addBills.css' %}" rel="stylesheet"/>{% endblock %}
+
+
+{% block content %}
+    <div class="container">
+        <div class="col-md-4 col-md-offset-4">
+
+          <form class='form-login' action="bill_list/new_billhtml-{{ nid }}" method="post">
+              <h3 class="text-center">新增账单</h3>
+              <div class="form-group">
+                <label for="id_date">日期：</label>
+                <input type="date" name='time' class="form-control" id="id_date" placeholder="必填" autofocus required>
+              </div>
+          <div class="form-group">
+                <label for="id_money">金额：</label>
+                <input type="number" name='money' class="form-control" id="id_money" placeholder="必填" autofocus required>
+              </div>
+          <div class="form-group">
+                <label for="id_type">类型：</label>
+                <input type="number" name='type' class="form-control" id="id_type" placeholder="必填" autofocus required>
+              </div>
+          <div class="form-group">
+                <label for="id_remark">备注：</label>
+                <input type="text" name='remark' class="form-control" id="id_remark" placeholder="选填">
+              </div>
+          <div class="form-group">
+                <label for="id_mood">心情：</label>
+                <input type="number" name='mood' class="form-control" id="id_mood" placeholder="选填">
+              </div>
+              {% if error == 1 %}
+                  <script type="text/javascript">
+              alert("输入错误！请重新输入！")
+              </script>
+              {% endif %}
+          {% if error == 0 %}
+              <script type="text/javascript">
+              alert("新增成功！")
+              </script>
+          {% endif %}
+                <button type="reset" class="btn btn-default pull-left">重置</button>
+
+              <button type="submit" class="btn btn-primary pull-right">提交</button>
+          </form>
+        </div>
+    </div> <!-- /container -->
+{% endblock %}

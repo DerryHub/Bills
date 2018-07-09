@@ -1,0 +1,26 @@
+{% extends 'afterlogin.html' %}
+{% load staticfiles %}
+{% block title %}登录{% endblock %}
+{% block css %}<link href="{% static 'css/getBills.css' %}" rel="stylesheet"/>{% endblock %}
+
+
+
+{% block content %}
+    <div class="container">
+        <div class="col-md-4 col-md-offset-4">
+          <form class='form-login' action="/bill/listhtml-{{ nid }}" method="post">
+              <h3 class="text-center">查询账单</h3>
+              <div class="form-group">
+                <label for="id_month">月份：</label>
+                <input type="month" name='time' class="form-control" id="id_month" autofocus required>
+              </div>
+              {% if bill == 0 %}
+                  <div>
+                  <label>账单不存在！</label>
+                  </div>
+              {% endif %}
+              <button type="submit" class="btn btn-primary pull-right">提交</button>
+          </form>
+        </div>
+    </div> <!-- /container -->
+{% endblock %}

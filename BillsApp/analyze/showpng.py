@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-import time
+import os
 
 
 l = [
@@ -40,6 +40,9 @@ def savePng(dataList2d, filename, type, xLabel='x', yLabel='y', color='blue'):
         showLine(dataList2d, xLabel=xLabel, yLabel=yLabel, color=color)
     elif type == 'pie':
         showPie(dataList2d)
+    for root, dirs, files in os.walk('./BillsApp/analyze/images'):
+        for file in files:
+            os.remove('./BillsApp/analyze/images/' + file)
     plt.savefig('./BillsApp/analyze/images/'+filename+'.png')
 
 
@@ -111,12 +114,10 @@ def toDataList2d(dictList, coordiante_x, coordinate_y, io):
                 if sum > max:
                     max = sum
                     maxtype = type
-            y.append(maxtype)
+            y.append(int(maxtype))
         x = [int(val) for val in x]
         dataList2d.append(x)
         dataList2d.append(y)
         return dataList2d
     else:
         return 0
-
-

@@ -1,5 +1,3 @@
-
-
 # bill_list_API
 
 **主键用数据库自己生成的自增id**
@@ -15,7 +13,7 @@
 #### Path
 
 ```http
-/bill/list
+/bill/list/
 ```
 
 ###### 参数说明
@@ -28,7 +26,7 @@
 ###### 样例
 
 ```http
-/bill/list?time=201707&username=aaa
+/bill/list/?time=201707&username=aaa
 ```
 
 ### Response
@@ -100,7 +98,7 @@
 #### Path
 
 ```http
-/bill_list/new_bill
+/bill_list/new_bill/
 ```
 
 ### PostBody
@@ -185,7 +183,7 @@
 #### Path
 
 ```http
-/bill_list/update_bill
+/bill_list/update_bill/
 ```
 
 ### PostBody
@@ -577,7 +575,7 @@
 ### path
 
 ```http
-/prediction?username=username/
+/prediction/?username=username/
 ```
 
 ### method
