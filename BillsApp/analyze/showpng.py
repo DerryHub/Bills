@@ -2,11 +2,6 @@ import matplotlib.pyplot as plt
 import os
 
 
-l = [
-    [0,1,2,3,4,5,6,7,8,9],
-    [23,4,3,5,46,7,34,67,8,12]
-]
-color = ['red','blue','green','gray','black','yellow','purple','orange']
 
 def showBar(dataList2d, xLabel='x', yLabel='y',color='blue'):
     x = dataList2d[0]
@@ -44,6 +39,12 @@ def savePng(dataList2d, filename, type, xLabel='x', yLabel='y', color='blue'):
         for file in files:
             os.remove('./BillsApp/analyze/images/' + file)
     plt.savefig('./BillsApp/analyze/images/'+filename+'.png')
+
+def toType(num):
+    l1 = [-1,0,1,2,3,4,5,6,7,8,9,10]
+    l2 = ['SR','RY','YL','XC','CY','JT',
+          'ZS','TX','SJ','YL','LX','QT']
+    return l2[int(num)+1]
 
 
 def toDataList2d(dictList, coordiante_x, coordinate_y, io):
@@ -86,7 +87,7 @@ def toDataList2d(dictList, coordiante_x, coordinate_y, io):
                 if d[coordiante_x] == type:
                     sum += float(d[coordinate_y]) * -1
             y.append(sum)
-        x = [int(val) for val in x]
+        x = [toType(int(val)) for val in x]
         dataList2d.append(x)
         dataList2d.append(y)
         return dataList2d
@@ -116,6 +117,7 @@ def toDataList2d(dictList, coordiante_x, coordinate_y, io):
                     maxtype = type
             y.append(int(maxtype))
         x = [int(val) for val in x]
+        y = [toType(val) for val in y]
         dataList2d.append(x)
         dataList2d.append(y)
         return dataList2d

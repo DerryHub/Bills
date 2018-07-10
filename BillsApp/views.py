@@ -36,7 +36,7 @@ def login(request):
                 jDict = json.dumps(dict)
                 return HttpResponse(jDict)
         else:
-            ditc = {'error': 'something absent'}
+            dict = {'error': 'something absent'}
             jDict = json.dumps(dict)
             return HttpResponse(jDict)
     else:
@@ -156,6 +156,7 @@ def addBills(request):
         type = request.POST.get('type', None)
         remark = request.POST.get('remark', None)
         mood = request.POST.get('mood', None)
+        if mood == 'None':mood = None
         if time and money and username and type:
             if (type != '-1' and int(money) < 0) or (type == '-1' and int(money) > 0):
                 if fun.exist(username) == 0:
@@ -585,6 +586,32 @@ def user(request, nid):
     obj = UserInfo.objects.get(id=nid)
     return render(request, 'user.html', {'user':obj})
 
+def toType(num):
+    l1 = [-1,0,1,2,3,4,5,6,7,8,9,10]
+    l2 = ['收入','日用','娱乐','小吃','餐饮','交通','住宿','通讯','书籍','医疗','旅行','其他']
+    return l2[int(num)+1]
+
+def toRemark(remark):
+    if remark == 'nan':
+        return ''
+    else:
+        return remark
+
+def toMood(mood):
+    if mood == '1':return '好'
+    elif mood == '2':return '一般'
+    elif mood == '3':return '差'
+
+def typeTo(type):
+    l1 = [-1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    l2 = ['收入', '日用', '娱乐', '小吃', '餐饮', '交通', '住宿', '通讯', '书籍', '医疗', '旅行', '其他']
+    index = l2.index(type)
+    return str(l1[index])
+
+def moodTo(mood):
+    if mood == '好':return '1'
+    elif mood == '一般':return '2'
+    elif mood == '差':return '3'
 
 
 # 登录函数
@@ -681,11 +708,11 @@ def getBillsH(request, nid):
                     l = []
                     for dict in list:
                         currentList = []
-                        currentList.append(dict['time'])
-                        currentList.append(dict['money'])
-                        currentList.append(dict['type'])
-                        currentList.append(dict['remark'])
-                        currentList.append(dict['mood'])
+                        currentList.append(int(dict['time']))
+                        currentList.append(str(dict['money'])+'元')
+                        currentList.append(toType(dict['type']))
+                        currentList.append(toMood(dict['mood']))
+                        currentList.append(toRemark(dict['remark']))
                         l.append(currentList)
                     return render(request, 'showBills.html', {'list':l, 'nid':nid,'user':obj})
         else:
@@ -721,6 +748,10 @@ def addBillsH(request, nid):
         type = request.POST.get('type', None)
         remark = request.POST.get('remark', None)
         mood = request.POST.get('mood', None)
+        if type == '-2':return render(request, 'addBills.html', {'nid': nid, 'error': 1,'user':obj})
+        if type == '-1':money = str(abs(int(money)))
+        else:money = str(-1*abs(int(money)))
+        if mood == '0':mood = None
         if time and money and username and type:
             if (type != '-1' and int(money) < 0) or (type == '-1' and int(money) > 0):
                 if fun.exist(username) == 0:
@@ -758,7 +789,6 @@ def addBillsH(request, nid):
 # | new_money  | string   | 更新的金额                     | 否       |
 # | new_type   | string   | 更新的账目类型                 | 否       |
 # | new_remark | string   | 更新的备注                     | 否       |
-
 def updateBillsH(request, nid):
     obj = UserInfo.objects.get(id=nid)
     if request.method == 'POST':
@@ -770,11 +800,30 @@ def updateBillsH(request, nid):
         time = time[0:4] + time[5:7] + time[8:10]
         money = request.POST.get('money', None)
         type = request.POST.get('type', None)
+        if type == '-1':money = str(abs(int(money)))
+        else:money = str(-1*abs(int(money)))
+        if type == '-2':return render(request, 'updataBills.html', {'nid': nid, 'error': 3,'user':obj})
         new_money = request.POST.get('new_money', None)
         new_type = request.POST.get('new_type', None)
+        if new_type == '-2':new_type = None
         new_remark = request.POST.get('new_remark', None)
         if time and money and username and type:
             if new_money or new_remark or new_type:
+                if new_type and new_money:
+                    if new_type == '-1':
+                        new_money = str(abs(int(new_money)))
+                    else:
+                        new_money = str(-1 * abs(int(new_money)))
+                elif new_type:
+                    if new_type == '-1':
+                        new_money = str(abs(int(money)))
+                    else:
+                        new_money = str(-1 * abs(int(money)))
+                elif new_money:
+                    if type == '-1':
+                        new_money = str(abs(int(new_money)))
+                    else:
+                        new_money = str(-1 * abs(int(new_money)))
                 if new_type:
                     nt = int(new_type)
                 else:
@@ -825,6 +874,9 @@ def deleteBillsH(request,nid):
         time = time[0:4] + time[5:7] + time[8:10]
         money = request.POST.get('money', None)
         type = request.POST.get('type', None)
+        if type == '-2':return render(request, 'deleteBills.html', {'nid': nid, 'error': 2,'user':obj})
+        if type == '-1':money = str(abs(int(money)))
+        else:money = str(-1*abs(int(money)))
         if time and money and type and username:
             if fun.exist(username) == 0:
                 return render(request, 'login.html')
@@ -836,7 +888,7 @@ def deleteBillsH(request,nid):
                 else:
                     return render(request, 'deleteBills.html', {'nid': nid, 'error': 1,'user':obj})
         else:
-            return render(request, 'deleteBills.html', {'nid': nid, 'error': -1,'user':obj})
+            return render(request, 'deleteBills.html', {'nid': nid, 'error': 2,'user':obj})
     else:
         return render(request, 'deleteBills.html', {'nid':nid,'error':-1,'user':obj})
 
@@ -908,12 +960,6 @@ def sendImageH(request, nid):
                 io = 'out'
                 tip = '消费类型比例(饼图)'
             elif itype == 6:
-                coordinate_x = 'time'
-                coordinate_y = 'type'
-                type = 'line'
-                io = 'out'
-                tip = '消费金额最多的类型(折线图)'
-            elif itype == 7:
                 coordinate_x = 'type'
                 coordinate_y = 'money'
                 type = 'bar'
@@ -1005,12 +1051,12 @@ def consumePredictionH(request, nid):
             dict['bottom2_money'] = d[bottom3[1]][3]
             dict['bottom3_money'] = d[bottom3[2]][3]
             top3, bottom3 = [str(val) for val in top3], [str(val) for val in bottom3]
-            dict['top1'] = top3[0]
-            dict['top2'] = top3[1]
-            dict['top3'] = top3[2]
-            dict['bottom1'] = bottom3[0]
-            dict['bottom2'] = bottom3[1]
-            dict['bottom3'] = bottom3[2]
+            dict['top1'] = toType(int(top3[0]))
+            dict['top2'] = toType(int(top3[1]))
+            dict['top3'] = toType((top3[2]))
+            dict['bottom1'] = toType((bottom3[0]))
+            dict['bottom2'] = toType((bottom3[1]))
+            dict['bottom3'] = toType((bottom3[2]))
             dict['user'] = obj
             dict['nid'] = nid
             return render(request, 'prediction.html', dict)
@@ -1055,6 +1101,30 @@ def writeOffUserH(request,nid):
 
 
 # 注销功能正常
+
+
+def showAll(request, nid):
+    obj = UserInfo.objects.get(id=nid)
+    try:
+        username = UserInfo.objects.get(id=nid).username
+    except:
+        return render(request, 'login.html')
+    dictList = fun.allBills(username)
+    if dictList == 0 or len(dictList) == 0:return render(request, 'user.html', {'nid':nid,'user':obj,'error':1})
+    l = []
+    timeList = []
+    for dict in dictList:
+        currentList = []
+        currentList.append(int(dict['time']))
+        timeList.append(int(dict['time']))
+        currentList.append(str(dict['money']) + '元')
+        currentList.append(toType(dict['type']))
+        currentList.append(toMood(dict['mood']))
+        currentList.append(toRemark(dict['remark']))
+        l.append(currentList)
+    timeList = list(set(timeList))
+    timeList = sorted(timeList)
+    return render(request, 'showAll.html', {'list': l, 'nid': nid, 'user': obj, 'timelist':timeList})
 
 
 # 从云端同步数据

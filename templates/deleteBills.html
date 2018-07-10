@@ -20,7 +20,21 @@
               </div>
           <div class="form-group">
                 <label for="id_type">类型：</label>
-                <input type="number" name='type' class="form-control" id="id_type" placeholder="必填" autofocus required>
+                <select class="form-control" name="type" id="id_type">
+                    <option value="-2">请选择</option>
+                    <option value="-1">收入</option>
+                    <option value="0">日用</option>
+                    <option value="1">娱乐</option>
+                    <option value="2">小吃</option>
+                    <option value="3">餐饮</option>
+                    <option value="4">交通</option>
+                    <option value="5">住宿</option>
+                    <option value="6">通讯</option>
+                    <option value="7">书籍</option>
+                    <option value="8">医疗</option>
+                    <option value="9">旅行</option>
+                    <option value="10">其他</option>
+                </select>
               </div>
               {% if error == 1 %}
                   <script type="text/javascript">
@@ -30,6 +44,11 @@
           {% if error == 0 %}
               <script type="text/javascript">
               alert("删除成功！")
+              </script>
+          {% endif %}
+          {% if error == 2 %}
+              <script type="text/javascript">
+              alert("请输入消费类型！")
               </script>
           {% endif %}
                 <button type="reset" class="btn btn-default pull-left">重置</button>

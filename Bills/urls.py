@@ -31,7 +31,7 @@ urlpatterns = [
     url('writeoff/',views.writeOffUser),
     url('synchronize/', views.synchronizeBills),
     url('init/',views.init),
-    url('indexhtml/', views.indexH),
+    url('index/', views.indexH),
     url('loginhtml/', views.loginH),
     url('registerhtml/', views.registerH),
     url('user-(?P<nid>\d+)', views.user),
@@ -42,7 +42,5 @@ urlpatterns = [
     url('imagehtml-(?P<nid>\d+)', views.sendImageH),
     url('predictionhtml-(?P<nid>\d+)', views.consumePredictionH),
     url('writeoffhtml-(?P<nid>\d+)',views.writeOffUserH),
-    url('synchronizehtml/', views.synchronizeBillsH),
-    url('inithtml/',views.init),
-
+    url('showallhtml-(?P<nid>\d+)', views.showAll),
 ]

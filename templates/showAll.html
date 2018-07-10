@@ -9,14 +9,12 @@
         <div class="col-md-4 col-md-offset-4">
         <form>
             <div>
-              <a href="/bill/listhtml-{{ nid }}">
+              <a href="/user-{{ nid }}">
                     <input type="button" value="返回">
                 </a>
               </div>
         </form>
-          <form class='form-login' action="/bill/listhtml-{{ nid }}" method="post">
-
-
+          <form class='form-login' action="/showallhtml-{{ nid }}" method="post">
               <div>
                   <table border="1">
                       <tr>
@@ -26,14 +24,27 @@
                           <th width="500">心情</th>
                           <th width="500">备注</th>
                       </tr>
-                      {% for l in list %}
-                      <tr>
-                      {% for val in l %}
-                          <td>{{ val }}</td>
-                          {% endfor %}
-                      </tr>
-                      {% endfor %}
+                      {% for t in timelist %}
+                          <tr>
+                          <td>{{ t }}</td>
+                          </tr>
+                          {% for l in list %}
+                              {% for v in l %}
+                  {% if v == t %}
+                              <tr>
+                              {% for val in l %}
+                              <td>{{ val }}</td>
+                              {% endfor %}
 
+                              </tr>
+                                  {% endif %}
+                              {% endfor %}
+
+                          {% endfor %}
+
+
+
+                        {% endfor %}
                   </table>
               </div>
           </form>
