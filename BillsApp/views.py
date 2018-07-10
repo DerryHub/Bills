@@ -154,7 +154,7 @@ def addBills(request):
         time = request.POST.get('time', None)
         money = request.POST.get('money', None)
         type = request.POST.get('type', None)
-        remark = request.POST.get('type', None)
+        remark = request.POST.get('remark', None)
         mood = request.POST.get('mood', None)
         if time and money and username and type:
             if (type != '-1' and int(money) < 0) or (type == '-1' and int(money) > 0):
@@ -719,7 +719,7 @@ def addBillsH(request, nid):
         time = time[0:4] + time[5:7]+time[8:10]
         money = request.POST.get('money', None)
         type = request.POST.get('type', None)
-        remark = request.POST.get('type', None)
+        remark = request.POST.get('remark', None)
         mood = request.POST.get('mood', None)
         if time and money and username and type:
             if (type != '-1' and int(money) < 0) or (type == '-1' and int(money) > 0):
@@ -844,6 +844,8 @@ def deleteBillsH(request,nid):
 # 删除账单功能正常
 
 
+
+
 # 画图并发送
 # 方法-post
 # path-/image/
@@ -861,16 +863,66 @@ def deleteBillsH(request,nid):
 # type只可从['bar','line','pie']中选择，分别对应柱状图、折线图、饼图
 # color只可从['red','blue','green','gray','black','yellow','purple','orange']中选择，其中饼图color无效，柱状图和折线图必须要color
 # month形如'201807'
-def sendImageH(request):
+def sendImageH(request, nid):
+    obj = UserInfo.objects.get(id=nid)
     if request.method == 'POST':
-        username = request.POST.get('username', None)
-        filename = request.POST.get('filename', None)
-        coordinate_x = request.POST.get('coordinate_x', None)
-        coordinate_y = request.POST.get('coordinate_y', None)
-        type = request.POST.get('type', None)
+        try:
+            username = UserInfo.objects.get(id=nid).username
+        except:
+            return render(request, 'login.html')
+        filename = username
+        itype = int(request.POST.get('itype', None))
+        time = request.POST.get('time', None)
         color = request.POST.get('color', None)
-        month = request.POST.get('month', None)
-        io = request.POST.get('io', None)
+        month = time[0:4] + time[5:7]
+        if color == '0' and itype != 5:return render(request, 'sendImage.html', {'user':obj, 'nid':nid, 'error':2})
+        if itype:
+            if itype == 1:
+                coordinate_x = 'time'
+                coordinate_y = 'money'
+                type = 'line'
+                io = 'out'
+                tip = '消费金额趋势(折线图)'
+            elif itype == 2:
+                coordinate_x = 'time'
+                coordinate_y = 'money'
+                type = 'bar'
+                io = 'out'
+                tip = '消费金额趋势(柱状图)'
+            elif itype == 3:
+                coordinate_x = 'time'
+                coordinate_y = 'money'
+                type = 'line'
+                io = 'in'
+                tip = '收入金额趋势(折线图)'
+            elif itype == 4:
+                coordinate_x = 'time'
+                coordinate_y = 'money'
+                type = 'bar'
+                io = 'in'
+                tip = '收入金额趋势(柱状图)'
+            elif itype == 5:
+                coordinate_x = 'type'
+                coordinate_y = 'money'
+                type = 'pie'
+                io = 'out'
+                tip = '消费类型比例(饼图)'
+            elif itype == 6:
+                coordinate_x = 'time'
+                coordinate_y = 'type'
+                type = 'line'
+                io = 'out'
+                tip = '消费金额最多的类型(折线图)'
+            elif itype == 7:
+                coordinate_x = 'type'
+                coordinate_y = 'money'
+                type = 'bar'
+                io = 'out'
+                tip = '消费金额最多的类型(柱状图)'
+            else:
+                return render(request, 'sendImage.html', {'user': obj, 'nid': nid, 'error': 0})
+        else:
+            return render(request, 'sendImage.html', {'user':obj, 'nid':nid, 'error':1})
         if filename and coordinate_x and coordinate_y and type and month and username and io:
             if io in ['in', 'out']:
                 if (coordinate_x, coordinate_y) in [('time', 'money'), ('type', 'money'), ('time', 'type')]:
@@ -879,11 +931,10 @@ def sendImageH(request):
                             dictList = fun.searchBills(month, username)
                             dataList2d = toDataList2d(dictList, coordinate_x, coordinate_y, io)
                             if dataList2d == 0:
-                                dict = {'error': 'unknown'}
-                                jDict = json.dumps(dict)
-                                return HttpResponse(jDict)
+                                return render(request, 'sendImage.html', {'user': obj, 'nid': nid, 'error': 0})
                             savePng(dataList2d=dataList2d, filename=filename, type=type, xLabel=coordinate_x,
                                     yLabel=coordinate_y, color=color)
+                            # return render(request, 'showImage.html', {'user': obj, 'nid': nid, 'filename':filename, 'tip':tip})
                             return showImage(filename)
                         else:
                             if color in ['red', 'blue', 'green', 'gray', 'black', 'yellow', 'purple', 'orange']:
@@ -891,37 +942,24 @@ def sendImageH(request):
                                 dataList2d = toDataList2d(dictList, coordinate_x, coordinate_y, io)
                                 if dataList2d == 0:
                                     if dataList2d == 0:
-                                        dict = {'error': 'unknown'}
-                                        jDict = json.dumps(dict)
-                                        return HttpResponse(jDict)
+                                        return render(request, 'sendImage.html', {'user': obj, 'nid': nid, 'error': 0})
                                 savePng(dataList2d=dataList2d, filename=filename, type=type, xLabel=coordinate_x,
                                         yLabel=coordinate_y, color=color)
+                                # return render(request, 'showImage.html',
+                                #               {'user': obj, 'nid': nid, 'filename': filename, 'tip':tip})
                                 return showImage(filename)
                             else:
-                                dict = {'error': 'color error'}
-                                jDict = json.dumps(dict)
-                                return HttpResponse(jDict)
+                                return render(request, 'sendImage.html', {'user': obj, 'nid': nid, 'error': 2})
                     else:
-                        dict = {'error': 'type error'}
-                        jDict = json.dumps(dict)
-                        return HttpResponse(jDict)
+                        return render(request, 'sendImage.html', {'user': obj, 'nid': nid, 'error': 0})
                 else:
-                    dict = {'error': 'coordinate error'}
-                    jDict = json.dumps(dict)
-                    return HttpResponse(jDict)
+                    return render(request, 'sendImage.html', {'user': obj, 'nid': nid, 'error': 0})
             else:
-                dict = {'error': 'io error'}
-                jDict = json.dumps(dict)
-                return HttpResponse(jDict)
+                return render(request, 'sendImage.html', {'user': obj, 'nid': nid, 'error': 0})
         else:
-            dict = {'error': 'something absent'}
-            jDict = json.dumps(dict)
-            return HttpResponse(jDict)
+            return render(request, 'sendImage.html', {'user': obj, 'nid': nid, 'error': 0})
     else:
-        # dict = {'error': 'not post'}
-        # jDict = json.dumps(dict)
-        # return HttpResponse(jDict)
-        return render(request, 'sendImage.html')
+        return render(request, 'sendImage.html', {'user':obj,'nid':nid,'error':0})
 
 
 # 绘制数据图功能正常
@@ -945,48 +983,40 @@ def sendImageH(request):
 # | bottom1_money | string   |用户最不喜欢的消费类型对应金额 |
 # | bottom2_money | string   |用户第二不喜欢的消费类型对应金额 |
 # | bottom3_money | string   |用户第三不喜欢的消费类型对应金额 |
-def consumePredictionH(request):
-    if request.method == 'GET':
-        username = request.GET.get('username', None)
-        if username:
-            if fun.exist(username):
-                lists = returnAllList(username)
-                if lists == 0:
-                    dict = {'error': 'unknown'}
-                    jDict = json.dumps(dict)
-                    return HttpResponse(jDict)
-                else:
-                    moneyList, moodList, typeList = lists
-                    top3, bottom3 = showType(x=typeList, y=moodList)
-                    d = showMoney(xMood=moodList, xType=typeList, y=moneyList)
-                    dict = {}
-                    dict['top1_money'] = d[top3[0]][1]
-                    dict['top2_money'] = d[top3[1]][1]
-                    dict['top3_money'] = d[top3[2]][1]
-                    dict['bottom1_money'] = d[bottom3[0]][3]
-                    dict['bottom2_money'] = d[bottom3[1]][3]
-                    dict['bottom3_money'] = d[bottom3[2]][3]
-                    top3, bottom3 = [str(val) for val in top3], [str(val) for val in bottom3]
-                    dict['top1'] = top3[0]
-                    dict['top2'] = top3[1]
-                    dict['top3'] = top3[2]
-                    dict['bottom1'] = bottom3[0]
-                    dict['bottom2'] = bottom3[1]
-                    dict['bottom3'] = bottom3[2]
-                    jDict = json.dumps(dict)
-                    return HttpResponse(jDict)
-            else:
-                dict = {'error': 'username do not exist'}
-                jDict = json.dumps(dict)
-                return HttpResponse(jDict)
+def consumePredictionH(request, nid):
+    obj = UserInfo.objects.get(id=nid)
+    try:
+        username = UserInfo.objects.get(id=nid).username
+    except:
+        return render(request, 'login.html')
+    if fun.exist(username):
+        lists = returnAllList(username)
+        if lists == 0:
+            return render(request, 'user.html', {'error':1,'user':obj,'nid':nid})
         else:
-            dict = {'error': 'something absent'}
-            jDict = json.dumps(dict)
-            return HttpResponse(jDict)
+            moneyList, moodList, typeList = lists
+            top3, bottom3 = showType(x=typeList, y=moodList)
+            d = showMoney(xMood=moodList, xType=typeList, y=moneyList)
+            dict = {}
+            dict['top1_money'] = d[top3[0]][1]
+            dict['top2_money'] = d[top3[1]][1]
+            dict['top3_money'] = d[top3[2]][1]
+            dict['bottom1_money'] = d[bottom3[0]][3]
+            dict['bottom2_money'] = d[bottom3[1]][3]
+            dict['bottom3_money'] = d[bottom3[2]][3]
+            top3, bottom3 = [str(val) for val in top3], [str(val) for val in bottom3]
+            dict['top1'] = top3[0]
+            dict['top2'] = top3[1]
+            dict['top3'] = top3[2]
+            dict['bottom1'] = bottom3[0]
+            dict['bottom2'] = bottom3[1]
+            dict['bottom3'] = bottom3[2]
+            dict['user'] = obj
+            dict['nid'] = nid
+            return render(request, 'prediction.html', dict)
     else:
-        dict = {'error': 'not get'}
-        jDict = json.dumps(dict)
-        return HttpResponse(jDict)
+        return render(request, 'login.html')
+
 
 
 # 消费分析预测功能正常
