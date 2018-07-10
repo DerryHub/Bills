@@ -8,7 +8,7 @@
     <div class="container">
         <div class="col-md-4 col-md-offset-4">
           <form class='form-login' action="/registerhtml/" method="post">
-              <h2 class="text-center">欢迎注册</h2>
+              <h2 class="text-center">欢迎注册frog记账</h2>
               <div class="form-group">
                 <label for="id_username">用户名：</label>
                 <input type="text" name='username' class="form-control" id="id_username" placeholder="必填" autofocus required>
@@ -17,6 +17,13 @@
                 <label for="id_password">密码：</label>
                 <input type="password" name='password' class="form-control" id="id_password" placeholder="必填" required>
                   </div>
+          <div class="form-group">
+                <label for="id_password2">再输一遍密码：</label>
+                <input type="password" name='password2' class="form-control" id="id_password2" placeholder="必填" required>
+          {% if error == 2 %}
+              <label>密码不一致！</label>
+          {% endif %}
+          </div>
               <div class="form-group">
                 <label for="id_age">年龄：</label>
                 <input type="number" name='age' id="id_age" class="form-control" placeholder="选填">

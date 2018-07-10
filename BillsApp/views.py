@@ -584,7 +584,7 @@ def init(request):
 
 def user(request, nid):
     obj = UserInfo.objects.get(id=nid)
-    return render(request, 'user.html', {'user':obj})
+    return render(request, 'user.html', {'user':obj, 'nid':nid})
 
 def toType(num):
     l1 = [-1,0,1,2,3,4,5,6,7,8,9,10]
@@ -654,11 +654,13 @@ def registerH(request):
         sex = request.POST.get('sex', None)
         age = request.POST.get('age', None)
         password = request.POST.get('password', None)
+        password2 = request.POST.get('password2', None)
         if sex == 'no':sex = None
         if username and password:
             if fun.exist(username):
                 return render(request, 'register.html', {'error': 1})
             else:
+                if password != password2: return render(request, 'register.html', {'error': 2})
                 if not sex:
                     sex = np.nan
                 if not age:
@@ -675,6 +677,29 @@ def registerH(request):
 
 
 # 注册功能正常
+
+
+def changeuser(request, nid):
+    obj = UserInfo.objects.get(id=nid)
+    if request.method == 'POST':
+        try:
+            username = UserInfo.objects.get(id=nid).username
+        except:
+            return render(request, 'login.html', {'nid': nid, 'user': obj})
+        new_sex = request.POST.get('new_sex',None)
+        new_age = request.POST.get('new_age',None)
+        if new_sex != '-1':
+            if new_sex == '0':new_sex = np.nan
+            obj.sex = new_sex
+            obj.save()
+        if new_age != obj.age:
+            if not new_age:new_age = np.nan
+            obj.age = new_age
+            obj.save()
+        return render(request, 'changeuser.html', {'nid': nid, 'user': obj, 'error':0})
+    else:
+        return render(request, 'changeuser.html', {'nid':nid,'user':obj})
+
 
 # 增删改查
 

@@ -43,4 +43,5 @@ urlpatterns = [
     url('predictionhtml-(?P<nid>\d+)', views.consumePredictionH),
     url('writeoffhtml-(?P<nid>\d+)',views.writeOffUserH),
     url('showallhtml-(?P<nid>\d+)', views.showAll),
+    url('userinfo-(?P<nid>\d+)',views.changeuser),
 ]
