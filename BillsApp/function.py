@@ -44,7 +44,12 @@ def deleteBills(time,money,type,username):
         OnesBills.objects.get(time=time, money=money, type=type,host_id=user.id).delete()
         return 1
     except Exception as e:
-        return 0
+        try:
+            user = UserInfo.objects.get(username=username)
+            OnesBills.objects.filter(time=time, money=money, type=type, host_id=user.id)[0].delete()
+            return 1
+        except Exception as e:
+            return 0
 
 
 # 修改账单
@@ -84,6 +89,7 @@ def searchBills(time,username):
                 dict['type'] = bill.type
                 dict['remark']=bill.remark
                 dict['mood']=bill.mood
+                dict['id'] = bill.id
                 bills_list.append(dict)
         return bills_list
     except Exception as e:

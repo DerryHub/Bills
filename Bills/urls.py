@@ -44,4 +44,8 @@ urlpatterns = [
     url('writeoffhtml-(?P<nid>\d+)',views.writeOffUserH),
     url('showallhtml-(?P<nid>\d+)', views.showAll),
     url('userinfo-(?P<nid>\d+)',views.changeuser),
+    url('changepad-(?P<nid>\d+)',views.changepassword),
+    url('delete-(?P<nid>\d+)',views.delete),
+    url('retchange-(?P<nid>\d+)',views.retChange),
+    url('change-(?P<nid>\d+)',views.change),
 ]

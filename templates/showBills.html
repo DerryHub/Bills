@@ -1,39 +1,68 @@
 {% extends 'afterlogin.html' %}
 {% load staticfiles %}
-{% block title %}登录{% endblock %}
+{% block title %}展示账单{% endblock %}
 {% block css %}<link href="{% static 'css/showBills.css' %}" rel="stylesheet"/>{% endblock %}
 
 
 {% block content %}
     <div class="container">
         <div class="col-md-4 col-md-offset-4">
-        <form>
+        <form class="back">
             <div>
-              <a href="/bill/listhtml-{{ nid }}">
+              <a href="/bill/listhtml-{{ nid }}" >
                     <input type="button" value="返回">
                 </a>
               </div>
         </form>
+        <h2>{{ user.username }}的{{ year }}年{{ month }}月的账单</h2>
           <form class='form-login' action="/bill/listhtml-{{ nid }}" method="post">
 
-
               <div>
-                  <table border="1">
+
+                  <table border="1" style="text-align: center;width: 1000px;" class="form-control">
                       <tr>
-                          <th width="500">日期</th>
-                          <th width="500">金额</th>
-                          <th width="500">类型</th>
-                          <th width="500">心情</th>
-                          <th width="500">备注</th>
+                          <th width="200" style="text-align: center">日期</th>
+                          <th width="100" style="text-align: center">金额</th>
+                          <th width="100" style="text-align: center">类型</th>
+                          <th width="100" style="text-align: center">心情</th>
+                          <th width="500" style="text-align: center">备注</th>
+                          <th width="200" style="text-align: center">操作</th>
                       </tr>
                       {% for l in list %}
                       <tr>
                       {% for val in l %}
+                          {% if val not in idlist %}
                           <td>{{ val }}</td>
+                          {% endif %}
+                          {% if val in idlist %}
+                        <td>
+                          <a href="/delete-{{ nid }}?id={{ val }}&year={{ year }}&month={{ month }}" >
+                    <input type="button" value="删除">
+                </a>
+                        <a href="/retchange-{{ nid }}?id={{ val }}" >
+                    <input type="button" value="修改">
+                </a>
+                        </td>
+                          {% endif %}
                           {% endfor %}
+
                       </tr>
                       {% endfor %}
-
+                 {% if s == 1 %}
+                  <script type="text/javascript">
+              alert("删除成功！")
+              </script>
+              {% endif %}
+                  {% if change == 1 %}
+                  <script type="text/javascript">
+              alert("修改成功！")
+              </script>
+              {% endif %}
+                  {% if s == 0 %}
+                  <script type="text/javascript">
+              alert("删除失败！")
+              </script>
+              {% endif %}
                   </table>
               </div>
           </form>

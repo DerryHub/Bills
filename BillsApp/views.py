@@ -114,15 +114,12 @@ def getBills(request):
                 jDict = json.dumps(dict)
                 return HttpResponse(jDict)
             else:
-                list = []
-                for d in dictList:
-                    list.append(d)
-                if len(list) == 0:
+                if len(dictList) == 0:
                     dict = {'error': 'bills do not exist'}
                     jDict = json.dumps(dict)
                     return HttpResponse(jDict)
                 else:
-                    jList = json.dumps(list)
+                    jList = json.dumps(dictList)
                     return HttpResponse(jList)
         else:
             dict = {'error': 'something absent'}
@@ -156,7 +153,7 @@ def addBills(request):
         type = request.POST.get('type', None)
         remark = request.POST.get('remark', None)
         mood = request.POST.get('mood', None)
-        if mood == 'None':mood = None
+        if mood != '1' and mood != '2' and mood != '3':mood = None
         if time and money and username and type:
             if (type != '-1' and int(money) < 0) or (type == '-1' and int(money) > 0):
                 if fun.exist(username) == 0:
@@ -601,6 +598,7 @@ def toMood(mood):
     if mood == '1':return '好'
     elif mood == '2':return '一般'
     elif mood == '3':return '差'
+    else:return ''
 
 def typeTo(type):
     l1 = [-1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
@@ -613,6 +611,107 @@ def moodTo(mood):
     elif mood == '一般':return '2'
     elif mood == '差':return '3'
 
+
+def delete(request, nid):
+    s = -1
+    obj = UserInfo.objects.get(id=nid)
+    bid = int(request.GET.get('id', None))
+    try:
+        username = UserInfo.objects.get(id=nid).username
+    except:
+        return render(request, 'login.html')
+    year = str(request.GET.get('year', None))
+    month = int(request.GET.get('month', None))
+    if month < 10:month = '0'+str(month)
+    else:month = str(month)
+    time = year+month
+    try:
+        OnesBills.objects.get(id=bid).delete()
+        s = 1
+    except Exception as e:
+        s = 0
+    dictList = fun.searchBills(time, username)
+    l = []
+    idList = []
+    for dict in dictList:
+        currentList = []
+        currentList.append(str(dict['time']))
+        currentList.append(str(dict['money']) + '元')
+        currentList.append(toType(dict['type']))
+        currentList.append(toMood(dict['mood']))
+        currentList.append(toRemark(dict['remark']))
+        currentList.append(str(dict['id']))
+        idList.append(str(dict['id']))
+        l.append(currentList)
+    year = str(int(time[0:4]))
+    month = str(int(time[5:7]))
+    return render(request, 'showBills.html',
+                  {'list': l, 'nid': nid, 'user': obj, 'year': year, 'month': month, 'idlist': idList, 's':s })
+
+def change(request, nid):
+    obj = UserInfo.objects.get(id=nid)
+    bid = request.GET.get('bid', None)
+    bill = OnesBills.objects.get(id=bid)
+    try:
+        username = UserInfo.objects.get(id=nid).username
+    except:
+        return render(request, 'login.html')
+    new_money = request.POST.get('new_money', None)
+    new_type = request.POST.get('new_type', None)
+    new_remark = request.POST.get('new_remark', None)
+    money = bill.money
+    type = bill.type
+    time = bill.time
+    month = time[0:6]
+    if new_money or new_remark or new_type:
+        if new_type and new_money:
+            if new_type == '-1':
+                new_money = str(abs(int(new_money)))
+            else:
+                new_money = str(-1 * abs(int(new_money)))
+        elif new_type:
+            if new_type == '-1':
+                new_money = str(abs(int(money)))
+            else:
+                new_money = str(-1 * abs(int(money)))
+        elif new_money:
+            if type == '-1':
+                new_money = str(abs(int(new_money)))
+            else:
+                new_money = str(-1 * abs(int(new_money)))
+        t = fun.changeBills(username, time, money, type, new_money, new_type, new_remark)
+        if t:
+            dictList = fun.searchBills(month, username)
+            l = []
+            idList = []
+            for dict in dictList:
+                currentList = []
+                currentList.append(str(dict['time']))
+                currentList.append(str(dict['money']) + '元')
+                currentList.append(toType(dict['type']))
+                currentList.append(toMood(dict['mood']))
+                currentList.append(toRemark(dict['remark']))
+                currentList.append(str(dict['id']))
+                idList.append(str(dict['id']))
+                l.append(currentList)
+            year = str(int(time[0:4]))
+            month = str(int(time[4:6]))
+            return render(request, 'showBills.html',
+                          {'list': l, 'nid': nid, 'user': obj, 'year': year, 'month': month, 'idlist': idList, 'change':1})
+        else:
+            return render(request, 'change.html', {'nid': nid, 'user': obj, 'error': 2})
+    else:
+        return render(request, 'change.html', {'nid':nid, 'user':obj, 'error':1})
+
+def retChange(request, nid):
+    obj = UserInfo.objects.get(id=nid)
+    bid = int(request.GET.get('id', None))
+    bill = OnesBills.objects.get(id=bid)
+    type = toType(int(bill.type))
+    time = str(bill.time)
+    time = time[0:4] + '-' + time[4:6] + '-' + time[6:8]
+    return render(request, 'change.html',
+                  {'time': time, 'bill': bill, 'nid': nid, 'user': obj, 'type':type})
 
 # 登录函数
 # 方法——post
@@ -698,7 +797,33 @@ def changeuser(request, nid):
             obj.save()
         return render(request, 'changeuser.html', {'nid': nid, 'user': obj, 'error':0})
     else:
-        return render(request, 'changeuser.html', {'nid':nid,'user':obj})
+        return render(request, 'changeuser.html', {'nid':nid,'user':obj,'error':-1})
+
+
+def changepassword(request, nid):
+    obj = UserInfo.objects.get(id=nid)
+    if request.method == 'POST':
+        try:
+            username = UserInfo.objects.get(id=nid).username
+        except:
+            return render(request, 'login.html', {'nid': nid, 'user': obj})
+        oldpad = request.POST.get('oldpad', None)
+        newpad = request.POST.get('newpad', None)
+        newpad2 = request.POST.get('newpad2', None)
+        if oldpad and newpad and newpad2:
+            if fun.judgePassword(username, oldpad):
+                if newpad == newpad2:
+                    obj.password = newpad
+                    obj.save()
+                    return render(request, 'login.html', {'nid': nid, 'user': obj, 'changepad': 0})
+                else:
+                    return render(request, 'changepad.html', {'nid': nid, 'user': obj, 'error': 3})
+            else:
+                return render(request, 'changepad.html', {'nid': nid, 'user': obj, 'error': 2})
+        else:
+            return render(request, 'changepad.html', {'nid': nid, 'user': obj, 'error': 1})
+    else:
+        return render(request, 'changepad.html', {'nid':nid,'user':obj,'error':-1})
 
 
 # 增删改查
@@ -712,9 +837,21 @@ def changeuser(request, nid):
 # | username | 用户名 |   | 是       |
 def getBillsH(request, nid):
     obj = UserInfo.objects.get(id=nid)
+    try:
+        bills = OnesBills.objects.filter(host_id=nid)
+    except:
+        try:
+            bills = OnesBills.objects.get(host_id=nid)
+        except:
+            bills = []
+    billsList = []
+    for bill in bills:
+        billsList.append(bill)
     if request.method == 'POST':
         time = request.POST.get('time', None)
         time = time[0:4]+time[5:7]
+        year = str(int(time[0:4]))
+        month = str(int(time[4:6]))
         try:
             username = UserInfo.objects.get(id=nid).username
         except:
@@ -724,22 +861,23 @@ def getBillsH(request, nid):
             if dictList == 0:
                 return render(request, 'getBills.html', {'nid': nid, 'bill': 0,'user':obj})
             else:
-                list = []
-                for d in dictList:
-                    list.append(d)
-                if len(list) == 0:
+                if len(dictList) == 0:
                     return render(request, 'getBills.html', {'nid': nid, 'bill': 0,'user':obj})
                 else:
                     l = []
-                    for dict in list:
+                    idList = []
+                    for dict in dictList:
                         currentList = []
-                        currentList.append(int(dict['time']))
+                        currentList.append(str(dict['time']))
                         currentList.append(str(dict['money'])+'元')
                         currentList.append(toType(dict['type']))
                         currentList.append(toMood(dict['mood']))
                         currentList.append(toRemark(dict['remark']))
+                        currentList.append(str(dict['id']))
+                        idList.append(str(dict['id']))
                         l.append(currentList)
-                    return render(request, 'showBills.html', {'list':l, 'nid':nid,'user':obj})
+                    return render(request, 'showBills.html', {'list':l, 'nid':nid,'user':obj, 'year':year,
+                                                              'month':month, 'idlist':idList})
         else:
             return render(request, 'getBills.html', {'nid':nid,'bill':-1,'user':obj})
     else:
@@ -821,10 +959,10 @@ def updateBillsH(request, nid):
             username = UserInfo.objects.get(id=nid).username
         except:
             return render(request, 'login.html')
-        time = request.POST.get('time', None)
-        time = time[0:4] + time[5:7] + time[8:10]
         money = request.POST.get('money', None)
         type = request.POST.get('type', None)
+        time = request.POST.get('time', None)
+        time = time[0:4] + time[5:7] + time[8:10]
         if type == '-1':money = str(abs(int(money)))
         else:money = str(-1*abs(int(money)))
         if type == '-2':return render(request, 'updataBills.html', {'nid': nid, 'error': 3,'user':obj})

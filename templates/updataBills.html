@@ -1,6 +1,6 @@
 {% extends 'afterlogin.html' %}
 {% load staticfiles %}
-{% block title %}登录{% endblock %}
+{% block title %}更改账单{% endblock %}
 {% block css %}<link href="{% static 'css/updataBills.css' %}" rel="stylesheet"/>{% endblock %}
 
 
@@ -62,6 +62,8 @@
                 <label for="id_newremark">新备注：</label>
                 <input type="text" name='new_remark' class="form-control" id="id_newremark" placeholder="选填">
               </div>
+
+
               {% if error == 1 %}
                   <script type="text/javascript">
               alert("新金额、新类型和新备注至少要填一个！")

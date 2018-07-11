@@ -37,6 +37,11 @@
               alert("注销成功！")
               </script>
               {% endif %}
+          {% if changepad == 0 %}
+                  <script type="text/javascript">
+              alert("密码修改成功，请用新密码重新登录！")
+              </script>
+              {% endif %}
               <button type="reset" class="btn btn-default pull-left">重置</button>
               <button type="submit" class="btn btn-primary pull-right">提交</button>
           </form>

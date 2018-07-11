@@ -1,26 +1,36 @@
 {% extends 'afterlogin.html' %}
 {% load staticfiles %}
-{% block title %}新增账单{% endblock %}
-{% block css %}<link href="{% static 'css/addBills.css' %}" rel="stylesheet"/>{% endblock %}
+{% block title %}修改账单{% endblock %}
+{% block css %}<link href="{% static 'css/change.css' %}" rel="stylesheet"/>{% endblock %}
+
 
 
 {% block content %}
     <div class="container">
         <div class="col-md-4 col-md-offset-4">
-
-          <form class='form-login' action="bill_list/new_billhtml-{{ nid }}" method="post">
-              <h3 class="text-center">新增账单</h3>
+          <form class='form-login' action="/change-{{ nid }}?bid={{ bill.id }}" method="post">
+              <h3 class="text-center">修改账单</h3>
               <div class="form-group">
                 <label for="id_date">日期：</label>
-                <input type="date" name='time' class="form-control" id="id_date" placeholder="必填" autofocus required>
+                <input type="date" name='time' value="{{ time }}" class="form-control" id="id_date" placeholder="必填" autofocus required>
               </div>
           <div class="form-group">
                 <label for="id_money">金额：</label>
-                <input type="number" name='money' class="form-control" id="id_money" placeholder="必填" autofocus required>
+                <input type="number" name='money' value="{{ bill.money }}" class="form-control" id="id_money" placeholder="必填" autofocus required>
               </div>
           <div class="form-group">
                 <label for="id_type">类型：</label>
                 <select class="form-control" name="type" id="id_type">
+                    <option value="{{ bill.type }}">{{ type }}</option>
+                </select>
+              </div>
+          <div class="form-group">
+                <label for="id_newmoney">新金额：</label>
+                <input type="number" name='new_money' class="form-control" id="id_newmoney" placeholder="选填">
+              </div>
+          <div class="form-group">
+                <label for="id_newtype">新类型(选填)：</label>
+                <select class="form-control" name="new_type" id="id_newtype">
                     <option value="-2">请选择</option>
                     <option value="-1">收入</option>
                     <option value="0">日用</option>
@@ -37,30 +47,22 @@
                 </select>
               </div>
           <div class="form-group">
-                <label for="id_remark">备注：</label>
-                <input type="text" name='remark' class="form-control" id="id_remark" placeholder="选填">
+                <label for="id_newremark">新备注：</label>
+                <input type="text" name='new_remark' class="form-control" id="id_newremark" placeholder="选填">
               </div>
-          <div class="form-group">
-                <label for="id_mood">心情(选填)：</label>
-                <select class="form-control" name="mood" id="id_mood">
-                    <option value="0">请选择</option>
-                    <option value="1">好</option>
-                    <option value="2">一般</option>
-                    <option value="3">差</option>
-                </select>
-              </div>
+
+
               {% if error == 1 %}
                   <script type="text/javascript">
-              alert("输入错误！请重新输入！")
+              alert("新金额、新类型和新备注至少要填一个！")
               </script>
               {% endif %}
-          {% if error == 0 %}
+          {% if error == 2 %}
               <script type="text/javascript">
-              alert("新增成功！")
+              alert("修改失败！")
               </script>
           {% endif %}
                 <button type="reset" class="btn btn-default pull-left">重置</button>
-
               <button type="submit" class="btn btn-primary pull-right">提交</button>
           </form>
         </div>
