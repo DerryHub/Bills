@@ -47,7 +47,11 @@
                     <input type="button" value="删除账单" style="width: 200px;font-size: 30px;color: #4cae4c;border-radius: 30px">
                 </a>
                   </div>
-
+                {% if error == 2 %}
+                  <script type="text/javascript">
+              alert("账单不足难以分析！")
+              </script>
+              {% endif %}
 
                 {% if error == 1 %}
                   <script type="text/javascript">

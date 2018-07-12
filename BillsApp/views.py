@@ -7,6 +7,7 @@ from prediction.showTypeMoney import *
 from BillsApp import function as fun
 from BillsApp.models import *
 import numpy as np
+import datetime
 
 
 # Create your views here.
@@ -651,6 +652,8 @@ def delete(request, nid):
     dictList = fun.searchBills(time, username)
     l = []
     idList = []
+    inMoney = 0
+    outMoney = 0
     for dict in dictList:
         currentList = []
         currentList.append(str(dict['time']))
@@ -661,10 +664,18 @@ def delete(request, nid):
         currentList.append(str(dict['id']))
         idList.append(str(dict['id']))
         l.append(currentList)
+        if int(dict['money']) > 0:
+            inMoney += abs(int(dict['money']))
+        else:
+            outMoney += abs(int(dict['money']))
+    inMoney = '+' + str(inMoney) + '元'
+    outMoney = '-' + str(outMoney) + '元'
+    l.sort()
     year = str(int(time[0:4]))
     month = str(int(time[5:7]))
     return render(request, 'showBills.html',
-                  {'list': l, 'nid': nid, 'user': obj, 'year': year, 'month': month, 'idlist': idList, 's': s})
+                  {'list': l, 'nid': nid, 'user': obj, 'year': year, 'month': month, 'idlist': idList, 's': s,
+                   'inMoney': inMoney, 'outMoney': outMoney})
 
 
 def change(request, nid):
@@ -704,6 +715,8 @@ def change(request, nid):
             dictList = fun.searchBills(month, username)
             l = []
             idList = []
+            inMoney = 0
+            outMoney = 0
             for dict in dictList:
                 currentList = []
                 currentList.append(str(dict['time']))
@@ -714,11 +727,18 @@ def change(request, nid):
                 currentList.append(str(dict['id']))
                 idList.append(str(dict['id']))
                 l.append(currentList)
+                if int(dict['money']) > 0:
+                    inMoney += abs(int(dict['money']))
+                else:
+                    outMoney += abs(int(dict['money']))
+            inMoney = '+' + str(inMoney) + '元'
+            outMoney = '-' + str(outMoney) + '元'
+            l.sort()
             year = str(int(time[0:4]))
             month = str(int(time[4:6]))
             return render(request, 'showBills.html',
                           {'list': l, 'nid': nid, 'user': obj, 'year': year, 'month': month, 'idlist': idList,
-                           'change': 1})
+                           'change': 1, 'inMoney': inMoney, 'outMoney': outMoney})
         else:
             time = str(time)
             time = time[0:4] + '-' + time[4:6] + '-' + time[6:8]
@@ -904,6 +924,8 @@ def getBillsH(request, nid):
                 else:
                     l = []
                     idList = []
+                    inMoney = 0
+                    outMoney = 0
                     for dict in dictList:
                         currentList = []
                         currentList.append(str(dict['time']))
@@ -914,8 +936,16 @@ def getBillsH(request, nid):
                         currentList.append(str(dict['id']))
                         idList.append(str(dict['id']))
                         l.append(currentList)
+                        if int(dict['money']) > 0:
+                            inMoney += abs(int(dict['money']))
+                        else:
+                            outMoney += abs(int(dict['money']))
+                    inMoney = '+' + str(inMoney) + '元'
+                    outMoney = '-' + str(outMoney) + '元'
+                    l.sort()
                     return render(request, 'showBills.html', {'list': l, 'nid': nid, 'user': obj, 'year': year,
-                                                              'month': month, 'idlist': idList})
+                                                              'month': month, 'idlist': idList, 'inMoney': inMoney,
+                                                              'outMoney': outMoney})
         else:
             return render(request, 'getBills.html', {'nid': nid, 'bill': -1, 'user': obj})
     else:
@@ -937,6 +967,8 @@ def getBillsH(request, nid):
 # | remark | string   | 备注                  | 否       |
 # | mood   | string   | 心情级别(分1、2、3级) | 否       |
 def addBillsH(request, nid):
+    today = datetime.date.today()
+    today = str(today)
     obj = UserInfo.objects.get(id=nid)
     if request.method == 'POST':
         try:
@@ -949,7 +981,7 @@ def addBillsH(request, nid):
         type = request.POST.get('type', None)
         remark = request.POST.get('remark', None)
         mood = request.POST.get('mood', None)
-        if type == '-2': return render(request, 'addBills.html', {'nid': nid, 'error': 1, 'user': obj})
+        if type == '-2': return render(request, 'addBills.html', {'nid': nid, 'error': 1, 'user': obj, 'today': today})
         if type == '-1':
             money = str(abs(int(money)))
         else:
@@ -958,7 +990,7 @@ def addBillsH(request, nid):
         if time and money and username and type:
             if (type != '-1' and int(money) < 0) or (type == '-1' and int(money) > 0):
                 if fun.exist(username) == 0:
-                    return render(request, 'addBills.html', {'nid': nid, 'error': 1, 'user': obj})
+                    return render(request, 'addBills.html', {'nid': nid, 'error': 1, 'user': obj, 'today': today})
                 else:
                     if not remark:
                         remark = np.nan
@@ -966,15 +998,15 @@ def addBillsH(request, nid):
                         mood = np.nan
                     t = fun.addBills(time, money, type, remark, mood, username)
                     if t:
-                        return render(request, 'addBills.html', {'nid': nid, 'error': 0, 'user': obj})
+                        return render(request, 'addBills.html', {'nid': nid, 'error': 0, 'user': obj, 'today': today})
                     else:
-                        return render(request, 'addBills.html', {'nid': nid, 'error': 1, 'user': obj})
+                        return render(request, 'addBills.html', {'nid': nid, 'error': 1, 'user': obj, 'today': today})
             else:
-                return render(request, 'addBills.html', {'nid': nid, 'error': 1, 'user': obj})
+                return render(request, 'addBills.html', {'nid': nid, 'error': 1, 'user': obj, 'today': today})
         else:
-            return render(request, 'addBills.html', {'nid': nid, 'error': 1, 'user': obj})
+            return render(request, 'addBills.html', {'nid': nid, 'error': 1, 'user': obj, 'today': today})
     else:
-        return render(request, 'addBills.html', {'nid': nid, 'error': -1, 'user': obj})
+        return render(request, 'addBills.html', {'nid': nid, 'error': -1, 'user': obj, 'today': today})
 
 
 # 新增账单功能正常
@@ -1248,6 +1280,8 @@ def consumePredictionH(request, nid):
             return render(request, 'user.html', {'error': 1, 'user': obj, 'nid': nid})
         else:
             moneyList, moodList, typeList = lists
+            if len(typeList) < 100 or len(list(set(typeList))) < 6:
+                return render(request, 'user.html', {'error': 2, 'user': obj, 'nid': nid})
             top3, bottom3 = showType(x=typeList, y=moodList)
             d = showMoney(xMood=moodList, xType=typeList, y=moneyList)
             dict = {}
@@ -1319,6 +1353,8 @@ def showAll(request, nid):
     if dictList == 0 or len(dictList) == 0: return render(request, 'user.html', {'nid': nid, 'user': obj, 'error': 1})
     l = []
     timeList = []
+    inMoney = 0
+    outMoney = 0
     for dict in dictList:
         currentList = []
         currentList.append(int(dict['time']))
@@ -1328,9 +1364,17 @@ def showAll(request, nid):
         currentList.append(toMood(dict['mood']))
         currentList.append(toRemark(dict['remark']))
         l.append(currentList)
+        if int(dict['money']) > 0:
+            inMoney += abs(int(dict['money']))
+        else:
+            outMoney += abs(int(dict['money']))
+    inMoney = '+' + str(inMoney) + '元'
+    outMoney = '-' + str(outMoney) + '元'
+    l.sort()
     timeList = list(set(timeList))
     timeList = sorted(timeList)
-    return render(request, 'showAll.html', {'list': l, 'nid': nid, 'user': obj, 'timelist': timeList})
+    return render(request, 'showAll.html',
+                  {'list': l, 'nid': nid, 'user': obj, 'timelist': timeList, 'inMoney': inMoney, 'outMoney': outMoney})
 
 
 # 从云端同步数据

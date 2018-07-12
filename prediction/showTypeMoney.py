@@ -1,17 +1,26 @@
-import pandas as pd
+import matplotlib.pyplot as plt
 from sklearn.neural_network import MLPRegressor
 import operator
 import BillsApp.function as fun
 
 
+def toOnehost(type):
+    v = [0,0,0,0,0,0,0,0,0,0,0]
+    v[int(type)] = 1
+    return list(v)
+
+
+
 def showType(x, y):
     x_list = x[:]
     x = [list([val]) for val in x_list]
+    train_x = [toOnehost(int(val)) for val in x_list]
     rgr = MLPRegressor()
-    rgr.fit(x, y)
+    rgr.fit(train_x, y)
     x_list = list(set(x_list))
     x = [list([val]) for val in x_list]
-    prediction = rgr.predict(x)
+    test_x = [toOnehost(int(val)) for val in x_list]
+    prediction = rgr.predict(test_x)
     m = len(x_list)
     d = {}
     for i in range(m):
@@ -25,16 +34,26 @@ def showType(x, y):
     return top3, bottom3
 
 
+
+
+
 def showMoney(xType, xMood, y):
-    x = [list([xType[i], xMood[i]]) for i in range(len(xType))]
+    print(xMood)
+    x = [toOnehost(int(xType[i])) for i in range(len(xType))]
+    train_x = []
+    m = len(x)
+    for i in range(m):
+        x[i].append(xMood[i])
+        train_x.append(x[i])
     rgr = MLPRegressor()
     rgr.fit(x, y)
-    test_x = []
     d = {}
     for xt in set(xType):
         d[xt] = {}
         for xm in set(xMood):
-            d[xt][xm] = str(int(rgr.predict([[xt,xm]])))
+            test_x = toOnehost(int(xt))
+            test_x.append(xm)
+            d[xt][xm] = str(int(rgr.predict([test_x])))
     return d
 
 
