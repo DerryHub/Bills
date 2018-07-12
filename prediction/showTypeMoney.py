@@ -48,8 +48,9 @@ def returnAllList(username):
         if len(dictList) == 0:return 0
         for d in dictList:
             if d['type'] != '-1':
-                moneyList.append(int(d['money'])*-1)
-                moodList.append(int(d['mood']))
-                typeList.append(int(d['type']))
+                if d['mood'] == '1' or d['mood'] == '2' or d['mood'] == '3':
+                    moneyList.append(int(d['money'])*-1)
+                    moodList.append(int(d['mood']))
+                    typeList.append(int(d['type']))
     return moneyList, moodList, typeList
 

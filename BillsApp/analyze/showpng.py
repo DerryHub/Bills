@@ -68,7 +68,7 @@ def toDataList2d(dictList, coordiante_x, coordinate_y, io):
                 else:
                     return 0
             y.append(sum)
-        x = [int(val) for val in x]
+        x = [int(val[6:8]) for val in x]
         dataList2d.append(x)
         dataList2d.append(y)
         return dataList2d
@@ -116,7 +116,7 @@ def toDataList2d(dictList, coordiante_x, coordinate_y, io):
                     max = sum
                     maxtype = type
             y.append(int(maxtype))
-        x = [int(val) for val in x]
+        x = [int(val[6:8]) for val in x]
         y = [toType(val) for val in y]
         dataList2d.append(x)
         dataList2d.append(y)

@@ -1,4 +1,4 @@
-from django.shortcuts import render,redirect
+from django.shortcuts import render, redirect
 from BillsApp.analyze.showpng import *
 from django.http import HttpResponse
 import json
@@ -7,7 +7,6 @@ from prediction.showTypeMoney import *
 from BillsApp import function as fun
 from BillsApp.models import *
 import numpy as np
-
 
 
 # Create your views here.
@@ -153,7 +152,7 @@ def addBills(request):
         type = request.POST.get('type', None)
         remark = request.POST.get('remark', None)
         mood = request.POST.get('mood', None)
-        if mood != '1' and mood != '2' and mood != '3':mood = None
+        if mood != '1' and mood != '2' and mood != '3': mood = None
         if time and money and username and type:
             if (type != '-1' and int(money) < 0) or (type == '-1' and int(money) > 0):
                 if fun.exist(username) == 0:
@@ -334,6 +333,10 @@ def sendImage(request):
                     if type in ['bar', 'line', 'pie']:
                         if type == 'pie':
                             dictList = fun.searchBills(month, username)
+                            if len(dictList) == 0:
+                                dict = {'error': 'no bills'}
+                                jDict = json.dumps(dict)
+                                return HttpResponse(jDict)
                             dataList2d = toDataList2d(dictList, coordinate_x, coordinate_y, io)
                             if dataList2d == 0:
                                 dict = {'error': 'unknown'}
@@ -570,6 +573,8 @@ def init(request):
         )
         addBills.save()
     return HttpResponse('Done')
+
+
 # 初始化功能正常
 
 
@@ -578,15 +583,16 @@ def init(request):
 # 网页前端
 
 
-
 def user(request, nid):
     obj = UserInfo.objects.get(id=nid)
-    return render(request, 'user.html', {'user':obj, 'nid':nid})
+    return render(request, 'user.html', {'user': obj, 'nid': nid})
+
 
 def toType(num):
-    l1 = [-1,0,1,2,3,4,5,6,7,8,9,10]
-    l2 = ['收入','日用','娱乐','小吃','餐饮','交通','住宿','通讯','书籍','医疗','旅行','其他']
-    return l2[int(num)+1]
+    l1 = [-1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    l2 = ['收入', '日用', '娱乐', '小吃', '餐饮', '交通', '住宿', '通讯', '书籍', '医疗', '旅行', '其他']
+    return l2[int(num) + 1]
+
 
 def toRemark(remark):
     if remark == 'nan':
@@ -594,11 +600,17 @@ def toRemark(remark):
     else:
         return remark
 
+
 def toMood(mood):
-    if mood == '1':return '好'
-    elif mood == '2':return '一般'
-    elif mood == '3':return '差'
-    else:return ''
+    if mood == '1':
+        return '好'
+    elif mood == '2':
+        return '一般'
+    elif mood == '3':
+        return '差'
+    else:
+        return ''
+
 
 def typeTo(type):
     l1 = [-1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
@@ -606,10 +618,14 @@ def typeTo(type):
     index = l2.index(type)
     return str(l1[index])
 
+
 def moodTo(mood):
-    if mood == '好':return '1'
-    elif mood == '一般':return '2'
-    elif mood == '差':return '3'
+    if mood == '好':
+        return '1'
+    elif mood == '一般':
+        return '2'
+    elif mood == '差':
+        return '3'
 
 
 def delete(request, nid):
@@ -622,9 +638,11 @@ def delete(request, nid):
         return render(request, 'login.html')
     year = str(request.GET.get('year', None))
     month = int(request.GET.get('month', None))
-    if month < 10:month = '0'+str(month)
-    else:month = str(month)
-    time = year+month
+    if month < 10:
+        month = '0' + str(month)
+    else:
+        month = str(month)
+    time = year + month
     try:
         OnesBills.objects.get(id=bid).delete()
         s = 1
@@ -646,7 +664,8 @@ def delete(request, nid):
     year = str(int(time[0:4]))
     month = str(int(time[5:7]))
     return render(request, 'showBills.html',
-                  {'list': l, 'nid': nid, 'user': obj, 'year': year, 'month': month, 'idlist': idList, 's':s })
+                  {'list': l, 'nid': nid, 'user': obj, 'year': year, 'month': month, 'idlist': idList, 's': s})
+
 
 def change(request, nid):
     obj = UserInfo.objects.get(id=nid)
@@ -659,6 +678,7 @@ def change(request, nid):
     new_money = request.POST.get('new_money', None)
     new_type = request.POST.get('new_type', None)
     new_remark = request.POST.get('new_remark', None)
+    if new_type == '-2': new_type = None
     money = bill.money
     type = bill.type
     time = bill.time
@@ -697,11 +717,20 @@ def change(request, nid):
             year = str(int(time[0:4]))
             month = str(int(time[4:6]))
             return render(request, 'showBills.html',
-                          {'list': l, 'nid': nid, 'user': obj, 'year': year, 'month': month, 'idlist': idList, 'change':1})
+                          {'list': l, 'nid': nid, 'user': obj, 'year': year, 'month': month, 'idlist': idList,
+                           'change': 1})
         else:
-            return render(request, 'change.html', {'nid': nid, 'user': obj, 'error': 2})
+            time = str(time)
+            time = time[0:4] + '-' + time[4:6] + '-' + time[6:8]
+            return render(request, 'change.html', {'nid': nid, 'user': obj, 'error': 2, 'bill': bill, 'type': type,
+                                                   'money': abs(int(bill.money)), 'time': time})
     else:
-        return render(request, 'change.html', {'nid':nid, 'user':obj, 'error':1})
+        time = str(time)
+        time = time[0:4] + '-' + time[4:6] + '-' + time[6:8]
+        return render(request, 'change.html',
+                      {'nid': nid, 'user': obj, 'error': 1, 'bill': bill, 'type': toType(int(type)),
+                       'money': abs(int(bill.money)), 'time': time})
+
 
 def retChange(request, nid):
     obj = UserInfo.objects.get(id=nid)
@@ -711,7 +740,8 @@ def retChange(request, nid):
     time = str(bill.time)
     time = time[0:4] + '-' + time[4:6] + '-' + time[6:8]
     return render(request, 'change.html',
-                  {'time': time, 'bill': bill, 'nid': nid, 'user': obj, 'type':type})
+                  {'time': time, 'bill': bill, 'nid': nid, 'user': obj, 'type': type, 'money': abs(int(bill.money))})
+
 
 # 登录函数
 # 方法——post
@@ -726,15 +756,15 @@ def loginH(request):
             if fun.exist(username):
                 if fun.judgePassword(username, password):
                     obj = UserInfo.objects.get(username=username)
-                    return render(request, 'user.html', {'user':obj})
+                    return render(request, 'user.html', {'user': obj})
                 else:
                     return render(request, 'login.html', {'error': 1})
             else:
                 return render(request, 'login.html', {'error': 2})
         else:
-            return render(request, 'login.html',{'error':0})
+            return render(request, 'login.html', {'error': 0})
     else:
-        return render(request, 'login.html',{'error':0})
+        return render(request, 'login.html', {'error': 0})
 
 
 # 登录功能正常
@@ -754,7 +784,7 @@ def registerH(request):
         age = request.POST.get('age', None)
         password = request.POST.get('password', None)
         password2 = request.POST.get('password2', None)
-        if sex == 'no':sex = None
+        if sex == 'no': sex = None
         if username and password:
             if fun.exist(username):
                 return render(request, 'register.html', {'error': 1})
@@ -766,13 +796,13 @@ def registerH(request):
                     age = np.nan
                 t = fun.addUser(username, password, sex, age)
                 if t:
-                    return render(request, 'login.html', {'register':1})
+                    return render(request, 'login.html', {'register': 1})
                 else:
                     return render(request, 'register.html', {'error': 0})
         else:
             return render(request, 'register.html', {'error': 0})
     else:
-        return render(request, 'register.html',{'error':0})
+        return render(request, 'register.html', {'error': 0})
 
 
 # 注册功能正常
@@ -785,19 +815,27 @@ def changeuser(request, nid):
             username = UserInfo.objects.get(id=nid).username
         except:
             return render(request, 'login.html', {'nid': nid, 'user': obj})
-        new_sex = request.POST.get('new_sex',None)
-        new_age = request.POST.get('new_age',None)
+        new_sex = request.POST.get('new_sex', None)
+        new_age = request.POST.get('new_age', None)
         if new_sex != '-1':
-            if new_sex == '0':new_sex = np.nan
+            if new_sex == '0': new_sex = np.nan
             obj.sex = new_sex
             obj.save()
         if new_age != obj.age:
-            if not new_age:new_age = np.nan
+            if not new_age or new_age == '': new_age = np.nan
             obj.age = new_age
             obj.save()
-        return render(request, 'changeuser.html', {'nid': nid, 'user': obj, 'error':0})
+        sex = obj.sex
+        age = obj.age
+        if sex == 'nan' or sex is np.nan: sex = ''
+        if age == 'nan' or sex is np.nan: age = ''
+        return render(request, 'changeuser.html', {'nid': nid, 'user': obj, 'error': 0, 'sex': sex, 'age': age})
     else:
-        return render(request, 'changeuser.html', {'nid':nid,'user':obj,'error':-1})
+        sex = obj.sex
+        age = obj.age
+        if sex == 'nan' or sex is np.nan: sex = ''
+        if age == 'nan' or sex is np.nan: age = ''
+        return render(request, 'changeuser.html', {'nid': nid, 'user': obj, 'error': -1, 'sex': sex, 'age': age})
 
 
 def changepassword(request, nid):
@@ -823,7 +861,7 @@ def changepassword(request, nid):
         else:
             return render(request, 'changepad.html', {'nid': nid, 'user': obj, 'error': 1})
     else:
-        return render(request, 'changepad.html', {'nid':nid,'user':obj,'error':-1})
+        return render(request, 'changepad.html', {'nid': nid, 'user': obj, 'error': -1})
 
 
 # 增删改查
@@ -849,7 +887,7 @@ def getBillsH(request, nid):
         billsList.append(bill)
     if request.method == 'POST':
         time = request.POST.get('time', None)
-        time = time[0:4]+time[5:7]
+        time = time[0:4] + time[5:7]
         year = str(int(time[0:4]))
         month = str(int(time[4:6]))
         try:
@@ -859,29 +897,29 @@ def getBillsH(request, nid):
         if time and username:
             dictList = fun.searchBills(time, username)
             if dictList == 0:
-                return render(request, 'getBills.html', {'nid': nid, 'bill': 0,'user':obj})
+                return render(request, 'getBills.html', {'nid': nid, 'bill': 0, 'user': obj})
             else:
                 if len(dictList) == 0:
-                    return render(request, 'getBills.html', {'nid': nid, 'bill': 0,'user':obj})
+                    return render(request, 'getBills.html', {'nid': nid, 'bill': 0, 'user': obj})
                 else:
                     l = []
                     idList = []
                     for dict in dictList:
                         currentList = []
                         currentList.append(str(dict['time']))
-                        currentList.append(str(dict['money'])+'元')
+                        currentList.append(str(dict['money']) + '元')
                         currentList.append(toType(dict['type']))
                         currentList.append(toMood(dict['mood']))
                         currentList.append(toRemark(dict['remark']))
                         currentList.append(str(dict['id']))
                         idList.append(str(dict['id']))
                         l.append(currentList)
-                    return render(request, 'showBills.html', {'list':l, 'nid':nid,'user':obj, 'year':year,
-                                                              'month':month, 'idlist':idList})
+                    return render(request, 'showBills.html', {'list': l, 'nid': nid, 'user': obj, 'year': year,
+                                                              'month': month, 'idlist': idList})
         else:
-            return render(request, 'getBills.html', {'nid':nid,'bill':-1,'user':obj})
+            return render(request, 'getBills.html', {'nid': nid, 'bill': -1, 'user': obj})
     else:
-        return render(request, 'getBills.html', {'nid':nid, 'bill':-1,'user':obj})
+        return render(request, 'getBills.html', {'nid': nid, 'bill': -1, 'user': obj})
 
 
 # 查询账单功能正常
@@ -906,19 +944,21 @@ def addBillsH(request, nid):
         except:
             return render(request, 'login.html')
         time = request.POST.get('time', None)
-        time = time[0:4] + time[5:7]+time[8:10]
+        time = time[0:4] + time[5:7] + time[8:10]
         money = request.POST.get('money', None)
         type = request.POST.get('type', None)
         remark = request.POST.get('remark', None)
         mood = request.POST.get('mood', None)
-        if type == '-2':return render(request, 'addBills.html', {'nid': nid, 'error': 1,'user':obj})
-        if type == '-1':money = str(abs(int(money)))
-        else:money = str(-1*abs(int(money)))
-        if mood == '0':mood = None
+        if type == '-2': return render(request, 'addBills.html', {'nid': nid, 'error': 1, 'user': obj})
+        if type == '-1':
+            money = str(abs(int(money)))
+        else:
+            money = str(-1 * abs(int(money)))
+        if mood == '0': mood = None
         if time and money and username and type:
             if (type != '-1' and int(money) < 0) or (type == '-1' and int(money) > 0):
                 if fun.exist(username) == 0:
-                    return render(request, 'addBills.html', {'nid': nid, 'error': 1,'user':obj})
+                    return render(request, 'addBills.html', {'nid': nid, 'error': 1, 'user': obj})
                 else:
                     if not remark:
                         remark = np.nan
@@ -926,15 +966,15 @@ def addBillsH(request, nid):
                         mood = np.nan
                     t = fun.addBills(time, money, type, remark, mood, username)
                     if t:
-                        return render(request, 'addBills.html', {'nid': nid, 'error': 0,'user':obj})
+                        return render(request, 'addBills.html', {'nid': nid, 'error': 0, 'user': obj})
                     else:
-                        return render(request, 'addBills.html', {'nid': nid, 'error': 1,'user':obj})
+                        return render(request, 'addBills.html', {'nid': nid, 'error': 1, 'user': obj})
             else:
-                return render(request, 'addBills.html', {'nid': nid, 'error': 1,'user':obj})
+                return render(request, 'addBills.html', {'nid': nid, 'error': 1, 'user': obj})
         else:
-            return render(request, 'addBills.html', {'nid': nid, 'error':1,'user':obj})
+            return render(request, 'addBills.html', {'nid': nid, 'error': 1, 'user': obj})
     else:
-        return render(request, 'addBills.html', {'nid': nid, 'error': -1,'user':obj})
+        return render(request, 'addBills.html', {'nid': nid, 'error': -1, 'user': obj})
 
 
 # 新增账单功能正常
@@ -963,12 +1003,14 @@ def updateBillsH(request, nid):
         type = request.POST.get('type', None)
         time = request.POST.get('time', None)
         time = time[0:4] + time[5:7] + time[8:10]
-        if type == '-1':money = str(abs(int(money)))
-        else:money = str(-1*abs(int(money)))
-        if type == '-2':return render(request, 'updataBills.html', {'nid': nid, 'error': 3,'user':obj})
+        if type == '-1':
+            money = str(abs(int(money)))
+        else:
+            money = str(-1 * abs(int(money)))
+        if type == '-2': return render(request, 'updataBills.html', {'nid': nid, 'error': 3, 'user': obj})
         new_money = request.POST.get('new_money', None)
         new_type = request.POST.get('new_type', None)
-        if new_type == '-2':new_type = None
+        if new_type == '-2': new_type = None
         new_remark = request.POST.get('new_remark', None)
         if time and money and username and type:
             if new_money or new_remark or new_type:
@@ -1001,17 +1043,17 @@ def updateBillsH(request, nid):
                     else:
                         t = fun.changeBills(username, time, money, type, new_money, new_type, new_remark)
                         if t:
-                            return render(request, 'updataBills.html', {'nid': nid, 'error':0,'user':obj})
+                            return render(request, 'updataBills.html', {'nid': nid, 'error': 0, 'user': obj})
                         else:
-                            return render(request, 'updataBills.html', {'nid': nid, 'error': -1,'user':obj})
+                            return render(request, 'updataBills.html', {'nid': nid, 'error': -1, 'user': obj})
                 else:
-                    return render(request, 'updataBills.html', {'nid': nid, 'error': 2,'user':obj})
+                    return render(request, 'updataBills.html', {'nid': nid, 'error': 2, 'user': obj})
             else:
-                return render(request, 'updataBills.html', {'nid': nid, 'error': 1,'user':obj})
+                return render(request, 'updataBills.html', {'nid': nid, 'error': 1, 'user': obj})
         else:
-            return render(request, 'updataBills.html', {'nid': nid, 'error':-1,'user':obj})
+            return render(request, 'updataBills.html', {'nid': nid, 'error': -1, 'user': obj})
     else:
-        return render(request, 'updataBills.html', {'nid':nid, 'error':-1,'user':obj})
+        return render(request, 'updataBills.html', {'nid': nid, 'error': -1, 'user': obj})
 
 
 # 修改账单功能正常
@@ -1026,7 +1068,7 @@ def updateBillsH(request, nid):
 # | time  | 要删除的账单的时间           | 是       |
 # | money | 金额                         | 是       |
 # | type  | 账目类型                     | 是       |
-def deleteBillsH(request,nid):
+def deleteBillsH(request, nid):
     obj = UserInfo.objects.get(id=nid)
     if request.method == 'POST':
         try:
@@ -1037,9 +1079,11 @@ def deleteBillsH(request,nid):
         time = time[0:4] + time[5:7] + time[8:10]
         money = request.POST.get('money', None)
         type = request.POST.get('type', None)
-        if type == '-2':return render(request, 'deleteBills.html', {'nid': nid, 'error': 2,'user':obj})
-        if type == '-1':money = str(abs(int(money)))
-        else:money = str(-1*abs(int(money)))
+        if type == '-2': return render(request, 'deleteBills.html', {'nid': nid, 'error': 2, 'user': obj})
+        if type == '-1':
+            money = str(abs(int(money)))
+        else:
+            money = str(-1 * abs(int(money)))
         if time and money and type and username:
             if fun.exist(username) == 0:
                 return render(request, 'login.html')
@@ -1047,18 +1091,16 @@ def deleteBillsH(request,nid):
 
                 t = fun.deleteBills(time, money, type, username)
                 if t:
-                    return render(request, 'deleteBills.html', {'nid': nid, 'error': 0,'user':obj})
+                    return render(request, 'deleteBills.html', {'nid': nid, 'error': 0, 'user': obj})
                 else:
-                    return render(request, 'deleteBills.html', {'nid': nid, 'error': 1,'user':obj})
+                    return render(request, 'deleteBills.html', {'nid': nid, 'error': 1, 'user': obj})
         else:
-            return render(request, 'deleteBills.html', {'nid': nid, 'error': 2,'user':obj})
+            return render(request, 'deleteBills.html', {'nid': nid, 'error': 2, 'user': obj})
     else:
-        return render(request, 'deleteBills.html', {'nid':nid,'error':-1,'user':obj})
+        return render(request, 'deleteBills.html', {'nid': nid, 'error': -1, 'user': obj})
 
 
 # 删除账单功能正常
-
-
 
 
 # 画图并发送
@@ -1090,7 +1132,7 @@ def sendImageH(request, nid):
         time = request.POST.get('time', None)
         color = request.POST.get('color', None)
         month = time[0:4] + time[5:7]
-        if color == '0' and itype != 5:return render(request, 'sendImage.html', {'user':obj, 'nid':nid, 'error':2})
+        if color == '0' and itype != 5: return render(request, 'sendImage.html', {'user': obj, 'nid': nid, 'error': 2})
         if itype:
             if itype == 1:
                 coordinate_x = 'time'
@@ -1131,13 +1173,15 @@ def sendImageH(request, nid):
             else:
                 return render(request, 'sendImage.html', {'user': obj, 'nid': nid, 'error': 0})
         else:
-            return render(request, 'sendImage.html', {'user':obj, 'nid':nid, 'error':1})
+            return render(request, 'sendImage.html', {'user': obj, 'nid': nid, 'error': 1})
         if filename and coordinate_x and coordinate_y and type and month and username and io:
             if io in ['in', 'out']:
                 if (coordinate_x, coordinate_y) in [('time', 'money'), ('type', 'money'), ('time', 'type')]:
                     if type in ['bar', 'line', 'pie']:
                         if type == 'pie':
                             dictList = fun.searchBills(month, username)
+                            if len(dictList) == 0:
+                                return render(request, 'sendImage.html', {'user': obj, 'nid': nid, 'error': 3})
                             dataList2d = toDataList2d(dictList, coordinate_x, coordinate_y, io)
                             if dataList2d == 0:
                                 return render(request, 'sendImage.html', {'user': obj, 'nid': nid, 'error': 0})
@@ -1168,7 +1212,7 @@ def sendImageH(request, nid):
         else:
             return render(request, 'sendImage.html', {'user': obj, 'nid': nid, 'error': 0})
     else:
-        return render(request, 'sendImage.html', {'user':obj,'nid':nid,'error':0})
+        return render(request, 'sendImage.html', {'user': obj, 'nid': nid, 'error': 0})
 
 
 # 绘制数据图功能正常
@@ -1201,7 +1245,7 @@ def consumePredictionH(request, nid):
     if fun.exist(username):
         lists = returnAllList(username)
         if lists == 0:
-            return render(request, 'user.html', {'error':1,'user':obj,'nid':nid})
+            return render(request, 'user.html', {'error': 1, 'user': obj, 'nid': nid})
         else:
             moneyList, moodList, typeList = lists
             top3, bottom3 = showType(x=typeList, y=moodList)
@@ -1227,7 +1271,6 @@ def consumePredictionH(request, nid):
         return render(request, 'login.html')
 
 
-
 # 消费分析预测功能正常
 
 
@@ -1237,7 +1280,7 @@ def consumePredictionH(request, nid):
 # 参数：username
 # 字段    	数据类型  	    说明
 # result	string	"1"成功,"0"无此用户名
-def writeOffUserH(request,nid):
+def writeOffUserH(request, nid):
     obj = UserInfo.objects.get(id=nid)
     if request.method == 'POST':
         try:
@@ -1250,7 +1293,7 @@ def writeOffUserH(request,nid):
                 if fun.judgePassword(username, password):
                     t = fun.deleteUser(username)
                     if t:
-                            return render(request, 'login.html', {'writeoff':1})
+                        return render(request, 'login.html', {'writeoff': 1})
                     else:
                         return render(request, 'login.html')
                 else:
@@ -1260,7 +1303,7 @@ def writeOffUserH(request,nid):
         else:
             return render(request, 'writeoff.html', {'nid': nid, 'user': obj, 'error': -1})
     else:
-        return render(request, 'writeoff.html', {'nid':nid,'user':obj,'error':-1})
+        return render(request, 'writeoff.html', {'nid': nid, 'user': obj, 'error': -1})
 
 
 # 注销功能正常
@@ -1273,7 +1316,7 @@ def showAll(request, nid):
     except:
         return render(request, 'login.html')
     dictList = fun.allBills(username)
-    if dictList == 0 or len(dictList) == 0:return render(request, 'user.html', {'nid':nid,'user':obj,'error':1})
+    if dictList == 0 or len(dictList) == 0: return render(request, 'user.html', {'nid': nid, 'user': obj, 'error': 1})
     l = []
     timeList = []
     for dict in dictList:
@@ -1287,7 +1330,7 @@ def showAll(request, nid):
         l.append(currentList)
     timeList = list(set(timeList))
     timeList = sorted(timeList)
-    return render(request, 'showAll.html', {'list': l, 'nid': nid, 'user': obj, 'timelist':timeList})
+    return render(request, 'showAll.html', {'list': l, 'nid': nid, 'user': obj, 'timelist': timeList})
 
 
 # 从云端同步数据
@@ -1327,4 +1370,3 @@ def synchronizeBillsH(request):
 
 def indexH(request):
     return render(request, 'index.html')
-

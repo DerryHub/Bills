@@ -17,7 +17,7 @@
           <div class="form-group">
                 <label for="id_sex">性别：</label>
                 <select name="new_sex" id="id_sex" class="form-control">
-                    <option value="-1">{{ user.sex }}</option>
+                    <option value="-1">{{ sex }}</option>
                     <option value="0">保密</option>
                     <option value="男">男</option>
                     <option value="女">女</option>
@@ -25,14 +25,21 @@
               </div>
           <div class="form-group">
                 <label for="id_age">年龄：</label>
-                <input type="number" name='new_age' id="id_age" class="form-control" value="{{ user.age }}">
+                <input type="number" name='new_age' id="id_age" class="form-control" value="{{ age }}">
               </div>
               {% if error == 0 %}
                <script type="text/javascript">
               alert("修改成功！")
               </script>
               {% endif %}
-         <div class="form-group"><a href="/changepad-{{ user.id }}"><input value="修改密码" type="button"></a></div>
+         <div class="form-group">
+             <a href="/changepad-{{ user.id }}">
+             <input value="修改密码" type="button" style="border-radius: 10px">
+             </a>
+                  <a href="/writeoffhtml-{{ user.id }}">
+                    <input type="button" value="注销账户" style="border-radius: 10px">
+                </a>
+              </div>
               <button type="submit" class="btn btn-primary pull-right">提交</button>
           </form>
         </div>

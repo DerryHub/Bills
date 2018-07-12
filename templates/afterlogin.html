@@ -36,11 +36,11 @@
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="my-nav">
           <ul class="nav navbar-nav">
-            <li class="active"><a href="/index/">主页</a></li>
+            <li class="active"><a href="/index/" style="font-size: 30px;top: 10px">主页</a></li>
           </ul>
           <ul class="nav navbar-nav navbar-right">
-              <li><label>欢迎您！<br><a href="/userinfo-{{ user.id }}"><input type="button" value="{{ user.username }}"></a></label></li>
-            <li><a href="/user-{{ user.id }}" style="color: #4cae4c"><input type="button" value="我能做什么" ></a></li>
+              <li><label style="font-size: 30px">欢迎您！<a href="/userinfo-{{ user.id }}"><input type="button" value="{{ user.username }}" style="border-radius: 10px;font-size: 20px"></a></label></li>
+            <li><a href="/user-{{ user.id }}" style="color: #4cae4c"><input type="button" value="我能做什么" style="border-radius: 30px;font-size: 20px;height: 40px"></a></li>
           </ul>
         </div><!-- /.navbar-collapse -->
       </div><!-- /.container-fluid -->

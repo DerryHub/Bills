@@ -8,39 +8,47 @@
     <div class="container">
         <div class="col-md-4 col-md-offset-4">
           <form class='form-login' action="/userhtml-{{ user.id}}" method="get">
-              <h3 class="text-center">欢迎您,{{ user.username }}!</h3>
+              <h1 class="text-center" style="font-size: 30px">欢迎您,{{ user.username }}!<br><br></h1>
               <div class="form-group">
                 <a href="/bill/listhtml-{{ user.id }}">
-                    <input type="button" value="查询账单">
-                </a>
-                  <a href="/writeoffhtml-{{ user.id }}">
-                    <input type="button" value="注销账户">
+                    <input type="button" value="查询账单" style="width: 200px;font-size: 30px;color: #4cae4c;border-radius: 30px">
                 </a>
               </div>
+
               <div class="form-group">
                 <a href="/bill_list/new_billhtml-{{ user.id }}">
-                    <input type="button" value="新增账单">
+                    <input type="button" value="新增账单" style="width: 200px;font-size: 30px;color: #4cae4c;border-radius: 30px">
                 </a>
-                  <a href="/imagehtml-{{ user.id }}">
-                    <input type="button" value="账单分析">
+                  </div>
+                    <div class="form-group">
+                <a href="/bill_list/update_billhtml-{{ user.id }}">
+                    <input type="button" value="修改账单" style="width: 200px;font-size: 30px;color: #4cae4c;border-radius: 30px">
+                </a>
+                  </div>
+                  <div class="form-group">
+                  <a href="/showallhtml-{{ user.id }}">
+                    <input type="button" value="所有账单" style="width: 200px;font-size: 30px;color: #4cae4c;border-radius: 30px">
                 </a>
               </div>
-              <div class="form-group">
-                <a href="/bill_list/update_billhtml-{{ user.id }}">
-                    <input type="button" value="修改账单">
+
+                  <div class="form-group">
+                  <a href="/imagehtml-{{ user.id }}">
+                    <input type="button" value="账单分析" style="width: 200px;font-size: 30px;color: #4cae4c;border-radius: 30px">
                 </a>
+              </div>
+
+                  <div class="form-group">
                   <a href="/predictionhtml-{{ user.id }}">
-                    <input type="button" value="性格分析">
+                    <input type="button" value="性格分析" style="width: 200px;font-size: 30px;color: #4cae4c;border-radius: 30px">
                 </a>
               </div>
               <div class="form-group">
                 <a href="/bill_list/delete_billhtml-{{ user.id }}">
-                    <input type="button" value="删除账单">
+                    <input type="button" value="删除账单" style="width: 200px;font-size: 30px;color: #4cae4c;border-radius: 30px">
                 </a>
-                  <a href="/showallhtml-{{ user.id }}">
-                    <input type="button" value="所有账单">
-                </a>
-              </div>
+                  </div>
+
+
                 {% if error == 1 %}
                   <script type="text/javascript">
               alert("您没有账单！")

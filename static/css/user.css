@@ -2,7 +2,7 @@ body {
   background-image: url("user.jpg");
 }
 .form-login {
-  max-width: 330px;
+  max-width: 50cm;
   padding: 60px;
   margin: 0 auto;
 }
